@@ -1,0 +1,85 @@
+<h1>Cerca</h1>
+
+<!-- Blocco posizione: imposta/aggiorna la posizione prima della ricerca vicino a me -->
+<div id="locBlock" class="card mb-12">
+  <div class="card__row center">
+    <div class="card__title">Posizione</div>
+
+    <div class="u-row-center">
+      <span id="locBadge" class="badge badge--no">Non impostata</span>
+
+      <button
+        type="button"
+        id="btnSetLocationMini"
+        class="btn btn--ghost hidden"
+        title="Imposta / aggiorna posizione"
+        aria-label="Imposta / aggiorna posizione"
+      >📍</button>
+    </div>
+  </div>
+
+  <div class="card__meta mt-10">
+    Per cercare libri vicino a te serve la posizione. Puoi aggiornarla in qualsiasi momento.
+  </div>
+
+  <div class="form__actions start mt-10">
+    <button type="button" id="btnSetLocation" class="btn btn--primary">Imposta posizione</button>
+    <span id="locMsg" class="card__meta u-m-0"></span>
+  </div>
+</div>
+
+<!-- Filtri principali per /api/books/search -->
+<form id="searchForm" class="form max-w-980">
+  <div class="u-row-wrap">
+    <label class="form__label label-relative search-col-main">
+      Ricerca
+      <input id="q" class="form__input" placeholder="Titolo, autore o casa editrice…" />
+      <div id="qSuggest" class="suggest hidden"></div>
+    </label>
+
+    <label class="form__label search-col-sm">
+      Genere
+      <select id="genre_id" class="form__input">
+        <option value="" selected>Tutti</option>
+      </select>
+    </label>
+
+    <label class="form__label search-col-sm">
+      Raggio (km)
+      <select id="radius_km" class="form__input">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15" selected>15</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+        <option value="200">200</option>
+      </select>
+    </label>
+
+    <label class="form__label search-col-md">
+      Disponibilita
+      <select id="availability" class="form__input">
+        <option value="available" selected>Solo disponibili</option>
+        <option value="all">Mostra anche non disponibili</option>
+      </select>
+    </label>
+
+    <div class="form__actions">
+      <button type="submit" class="btn btn--primary">Cerca</button>
+      <button type="button" id="btnReset" class="btn btn--ghost">Reset</button>
+    </div>
+  </div>
+</form>
+
+<!-- Risultati paginati lato server -->
+<div id="searchStatus" class="card__meta"></div>
+
+<div id="searchResults" class="search-results-grid"></div>
+
+<div id="pager" class="form__actions between mt-12 max-w-980">
+  <button type="button" id="btnPrev" class="btn btn--ghost">← Precedente</button>
+  <span id="pagerInfo" class="card__meta u-m-0"></span>
+  <button type="button" id="btnNext" class="btn btn--ghost">Successiva →</button>
+</div>

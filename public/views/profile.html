@@ -1,0 +1,60 @@
+<h1>Il mio profilo</h1>
+<p class="muted">Qui imposti il contatto che verra sbloccato solo quando un prestito e <strong>accettato</strong>.</p>
+
+<!-- Username, email e nome arrivano dalla sessione e restano in sola lettura -->
+<form id="profileForm" class="form max-w-520">
+  <label class="form__label">
+    Username
+    <input id="profileUsername" class="form__input" disabled />
+  </label>
+
+  <label class="form__label">
+    Email
+    <input id="profileEmail" class="form__input" disabled />
+  </label>
+
+  <label class="form__label">
+    Nome e cognome
+    <input id="profileFullName" class="form__input" disabled />
+  </label>
+
+  <label class="form__label">
+    Telefono (opzionale)
+    <input id="profilePhone" class="form__input" placeholder="+39..." />
+  </label>
+
+  <!-- Anonimizzazione posizione: stessa API usata dalla ricerca, ma configurabile da profilo -->
+  <div class="form__label" style="margin-top:6px;">Posizione approssimata</div>
+  <label style="display:flex; gap:8px; align-items:center; margin:6px 0;">
+    <input id="locProfileStandard" type="radio" name="locationPrivacyProfile" value="standard" />
+    <span>Profilo standard (5 km)</span>
+    <span title="Area approssimata di 5 km: buon compromesso tra utilità e riservatezza." style="cursor:help;">ⓘ</span>
+  </label>
+  <label style="display:flex; gap:8px; align-items:center; margin:6px 0;">
+    <input id="locProfilePrivate" type="radio" name="locationPrivacyProfile" value="private" />
+    <span>Profilo area ampia (10 km)</span>
+    <span title="Area approssimata di 10 km: posizione piu generica per maggiore privacy." style="cursor:help;">ⓘ</span>
+  </label>
+  <div class="form__actions start">
+    <button type="button" id="btnUpdateLocationProfile" class="btn btn--ghost">Aggiorna posizione con questo profilo</button>
+    <button type="button" id="btnDeleteLocation" class="btn btn--ghost">Rimuovi posizione salvata</button>
+  </div>
+  <div id="profileLocationMsg" class="card__meta"></div>
+
+  <div class="form__label" style="margin-top:6px;">Contatto per lo scambio</div>
+  <!-- La preferenza contatto viene validata in JS (telefono obbligatorio se scelto) -->
+  <label style="display:flex; gap:8px; align-items:center; margin:6px 0;">
+    <input id="prefEmail" type="radio" name="exchangePref" value="email" />
+    <span>Usa email</span>
+  </label>
+  <label style="display:flex; gap:8px; align-items:center; margin:6px 0;">
+    <input id="prefPhone" type="radio" name="exchangePref" value="phone" />
+    <span>Usa telefono</span>
+  </label>
+
+  <div id="profileMsg" class="form__error hidden" style="background:transparent; border:none; padding:0; color:inherit;"></div>
+
+  <div class="form__actions">
+    <button type="submit" class="btn btn--primary">Salva</button>
+  </div>
+</form>

@@ -1,0 +1,26 @@
+<h1>I miei libri</h1>
+<!-- Intestazione: stato caricamento + switch lista/griglia -->
+<div class="card__row center between mb-12">
+  <p id="myBooksStatus" class="u-m-0">Caricamento…</p>
+  <div class="u-row-center">
+    <button id="viewListBtn" type="button" class="btn mybooks-view-btn" aria-label="Vista lista" title="Vista lista">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <rect x="4" y="5" width="16" height="2"></rect>
+        <rect x="4" y="11" width="16" height="2"></rect>
+        <rect x="4" y="17" width="16" height="2"></rect>
+      </svg>
+      <span class="sr-only">Lista</span>
+    </button>
+    <button id="viewGridBtn" type="button" class="btn mybooks-view-btn" aria-label="Vista griglia" title="Vista griglia">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <rect x="4" y="4" width="7" height="7"></rect>
+        <rect x="13" y="4" width="7" height="7"></rect>
+        <rect x="4" y="13" width="7" height="7"></rect>
+        <rect x="13" y="13" width="7" height="7"></rect>
+      </svg>
+      <span class="sr-only">Griglia</span>
+    </button>
+  </div>
+</div>
+<!-- Contenuto popolato da myBooks.view.js in base alla vista selezionata -->
+<div id="myBooksList"></div>

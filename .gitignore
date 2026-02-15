@@ -1,0 +1,14 @@
+# Dipendenze
+node_modules/
+
+# Segreti locali
+.env
+.env.*
+
+# File di sistema
+.DS_Store
+
+# Output/tooling
+npm-debug.log*
+coverage/
+dist/

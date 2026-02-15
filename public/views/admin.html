@@ -1,0 +1,119 @@
+<h1 class="mb-12">Amministrazione</h1>
+
+<!-- Riepilogo statistiche + due classifiche -->
+<section class="section-block">
+  <h2 class="section-title">Statistiche</h2>
+  <div id="admin-stats" class="u-row-wrap"></div>
+  <p id="admin-stats-empty" class="muted mt-10" hidden>
+    Nessun dato disponibile per ora.
+  </p>
+
+  <div id="admin-stats-lists" hidden>
+    <div class="card">
+      <div class="card__title mb-12">Top visualizzati</div>
+      <div id="admin-top-viewed" class="stack-col-10"></div>
+    </div>
+    <div class="card">
+      <div class="card__title mb-12">Piu richiesti</div>
+      <div id="admin-most-requested" class="stack-col-10"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Mappa distribuzione patrimonio (solo analisi admin, non usata per il flusso prestiti) -->
+<section class="section-block">
+  <h2 class="section-title">Distribuzione patrimonio librario</h2>
+  <p id="admin-map-meta" class="card__meta u-m-0"></p>
+  <div id="admin-map"></div>
+  <p id="admin-map-empty" class="muted mt-10" hidden>
+    Nessun punto disponibile.
+  </p>
+  <p class="card__meta mt-6">
+    I punti mostrano aree approssimate: non vengono esposte coordinate precise degli utenti.
+  </p>
+</section>
+
+<!-- Manutenzione metadati catalogo -->
+<section class="section-block">
+  <h2 class="section-title">Manutenzione metadati</h2>
+  <div class="u-row-wrap">
+    <label class="card__meta u-m-0">Filtro</label>
+    <select id="admin-maintenance-type" class="form__input">
+      <option value="" selected>Seleziona filtro...</option>
+      <option value="missing_description">Senza descrizione</option>
+      <option value="uncategorized">Da classificare</option>
+      <option value="missing_cover">Senza copertina</option>
+      <option value="fallback_pages">Pagine da verificare</option>
+    </select>
+    <button id="admin-maintenance-refresh" type="button" class="btn btn--ghost">Aggiorna</button>
+  </div>
+  <div id="admin-maintenance-status" class="card__meta mt-6"></div>
+  <div id="admin-maintenance-list" class="stack-col-10 mt-10"></div>
+</section>
+
+<!-- Strumenti operativi.
+     Nel menu mostro gli username, ma gli aggiornamenti usano comunque l'id numerico. -->
+<section class="section-block">
+  <h2 class="section-title">Strumenti admin</h2>
+
+  <div id="admin-tools-grid">
+    <div class="card">
+      <div class="card__title mb-12">Permessi utente</div>
+      <form id="admin-user-form" class="form">
+        <label class="card__meta u-m-0">Utente</label>
+        <div id="admin-user-search-row">
+          <input
+            id="admin-user-query"
+            type="search"
+            placeholder="Cerca username o email"
+            class="form__input"
+          />
+          <select id="admin-user-sort" class="form__input">
+            <option value="name">Ordina: nome</option>
+            <option value="id_asc">Ordina: id crescente</option>
+            <option value="id_desc">Ordina: id decrescente</option>
+          </select>
+        </div>
+        <select id="admin-user-id" class="form__input"></select>
+
+        <label class="u-row-center">
+          <input id="admin-user-trusted-flag" type="checkbox" />
+          Imposta come trusted
+        </label>
+
+        <label class="u-row-center">
+          <input id="admin-user-admin-flag" type="checkbox" />
+          Imposta come admin
+        </label>
+
+        <div id="admin-user-current" class="card__meta u-m-0"></div>
+
+        <div class="form__actions start">
+          <button type="submit" class="btn btn--ghost">Applica</button>
+        </div>
+        <div id="admin-user-msg" class="card__meta u-m-0"></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card__title mb-12">Scheda utente</div>
+      <div id="admin-user-overview" class="card__meta">Seleziona un utente per vedere i dettagli.</div>
+      <div class="mt-6">
+        <button id="admin-user-edit-username" type="button" disabled>
+          Modifica username
+        </button>
+      </div>
+      <div id="admin-user-stats" class="stack-col-10 mt-10"></div>
+      <div class="u-row-center mt-12">
+        <button id="admin-user-toggle-status" type="button" class="btn btn--ghost" disabled>
+          Elimina utente
+        </button>
+        <div id="admin-user-status-msg" class="card__meta u-m-0"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="card__meta mt-12">
+    Nota: queste azioni richiedono privilegi admin. Impostare un utente come admin da accesso completo al pannello.
+  </p>
+</section>

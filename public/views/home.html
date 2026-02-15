@@ -1,0 +1,31 @@
+<h1 class="mb-12">Home</h1>
+<p class="muted mb-12">
+  Scorri le raccolte. Se sei loggato e hai impostato la posizione, vedrai anche i libri vicini a te.
+</p>
+
+<!-- Mostrata solo quando la posizione utente è disponibile -->
+<section class="section-block" id="home-near-section" hidden>
+  <h2 class="section-title">Vicini a te</h2>
+  <div id="home-near-row" class="scroll-row"></div>
+  <p id="home-near-empty" class="muted mt-10" hidden>
+    Nessun libro nel raggio selezionato (o posizione non disponibile).
+  </p>
+</section>
+
+<!-- Classifica pubblica: libri più richiesti -->
+<section class="section-block">
+  <h2 class="section-title">Piu richiesti</h2>
+  <div id="home-most-requested-row" class="scroll-row"></div>
+  <p id="home-most-requested-empty" class="muted mt-10" hidden>
+    Nessun dato disponibile per ora.
+  </p>
+</section>
+
+<!-- Classifica pubblica: libri più visualizzati -->
+<section class="section-block">
+  <h2 class="section-title">Piu visualizzati</h2>
+  <div id="home-most-viewed-row" class="scroll-row"></div>
+  <p id="home-most-viewed-empty" class="muted mt-10" hidden>
+    Nessun dato disponibile per ora.
+  </p>
+</section>

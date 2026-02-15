@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PW14 - LibraryShare</title>
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <button id="btnMenu" class="icon" aria-label="Apri menu">☰</button>
+    <div class="brand">PW14 LibraryShare</div>
+
+    <div class="spacer"></div>
+
+    <button id="btnLogin" class="btn">Login</button>
+    <button id="btnRegister" class="btn">Registrati</button>
+    <button id="btnLogout" class="btn hidden">Logout</button>
+  </header>
+
+  <!-- Modale login -->
+  <div id="loginModal" class="modal hidden" aria-hidden="true">
+    <div class="modal__backdrop" data-close="1"></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-label="Login">
+      <h2 class="modal__title">Accedi</h2>
+
+      <form id="loginForm" class="form">
+        <label class="form__label">
+          Username
+          <input id="loginUsername" class="form__input" autocomplete="username" required />
+        </label>
+
+        <label class="form__label">
+          Password
+          <input id="loginPassword" class="form__input" type="password" autocomplete="current-password" required />
+        </label>
+
+        <div id="loginError" class="form__error hidden"></div>
+
+        <div class="form__actions">
+          <button type="button" id="btnLoginCancel" class="btn btn--ghost">Annulla</button>
+          <button type="submit" class="btn btn--primary">Entra</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modale registrazione -->
+  <div id="registerModal" class="modal hidden" aria-hidden="true">
+    <div class="modal__backdrop" data-close="1"></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-label="Registrazione">
+      <h2 class="modal__title">Registrati</h2>
+
+      <form id="registerForm" class="form">
+        <label class="form__label">
+          Username
+          <input id="regUsername" class="form__input" autocomplete="username" required />
+        </label>
+
+        <label class="form__label">
+          Email
+          <input id="regEmail" class="form__input" type="email" autocomplete="email" required />
+        </label>
+
+        <label class="form__label">
+          Nome completo (opzionale)
+          <input id="regFullName" class="form__input" autocomplete="name" />
+        </label>
+
+        <label class="form__label">
+          Password
+          <input id="regPassword" class="form__input" type="password" autocomplete="new-password" required />
+        </label>
+
+        <div id="registerError" class="form__error hidden"></div>
+
+        <div class="form__actions">
+          <button type="button" id="btnRegisterCancel" class="btn btn--ghost">Annulla</button>
+          <button type="submit" class="btn btn--primary">Crea account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modale dettagli libro -->
+  <div id="bookModal" class="modal hidden" aria-hidden="true">
+    <div class="modal__backdrop" data-close="1"></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-label="Dettagli libro">
+      <div class="card__row" style="align-items:center; justify-content:space-between; gap:10px; margin:0 0 10px;">
+        <h2 class="modal__title" style="margin:0;">Dettagli libro</h2>
+        <button type="button" id="btnBookClose" class="btn btn--ghost" aria-label="Chiudi">Chiudi</button>
+      </div>
+
+      <div id="bookModalBody">
+        <p>Caricamento…</p>
+      </div>
+
+      <div id="bookModalActions" class="form__actions" style="justify-content:space-between; margin-top:12px;">
+        <button type="button" id="btnToggleAvailability" class="btn btn--primary">Cambia disponibilità</button>
+        <button type="button" id="btnRemoveFromMyLibrary" class="btn btn--ghost hidden">Rimuovi dalla mia libreria</button>
+        <button type="button" id="btnNotifyAvailable" class="btn btn--primary hidden" title="Funzione in arrivo">Avvisami quando torna disponibile</button>
+        <button type="button" id="btnRequestLoan" class="btn btn--primary hidden">Chiedi in prestito</button>
+        <span id="bookModalMsg" class="card__meta" style="margin:0;"></span>
+      </div>
+    </div>
+  </div>
+
+  <aside id="drawer" class="drawer hidden" aria-label="Menu laterale">
+    <nav class="nav">
+        <a class="nav__item" href="#/home">Home</a>
+        <a class="nav__item" href="#/search">Cerca</a>
+
+        <div class="nav__sep"></div>
+        <a class="nav__item nav__auth hidden" href="#/profile" >Il mio profilo</a>
+        <a class="nav__item nav__auth hidden" href="#/my-books">I miei libri</a>
+        <a class="nav__item nav__auth hidden" href="#/book-new">Inserisci libro</a>
+        <a class="nav__item nav__auth hidden" href="#/loans">Prestiti</a>
+
+        <div class="nav__sep nav__auth hidden"></div>
+
+        <a class="nav__item nav__admin hidden" href="#/admin">Admin</a>
+    </nav>
+  </aside>
+
+  <main id="app" class="app">
+    <!-- qui renderizzo Home -->
+  </main>
+
+  <script type="module" src="/js/app.js" defer></script>
+</body>
+</html>
