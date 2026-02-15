@@ -98,11 +98,12 @@ Questo progetto implementa funzionalità di geolocalizzazione **senza compromett
 Questo è un **progetto didattico** sviluppato in circa un mese per il corso di Project Work. Funziona e fa quello che deve fare, ma ci sono sicuramente margini di miglioramento:
 
 - Non c'è una moderazione vera sui contenuti (si assume buona fede).
-- L'editing dei metadati è basico (per ora si può solo aggiungere/rimuovere).
+- L'editing dei metadati è basico (per ora si può solo aggiungere/rimuovere/editare).
 - Non c'è un sistema di notifiche push (tutto via polling o refresh).
-- La mappa è presente solo in admin e mostra distribuzione aggregata.
+- Nessuna verifica dell'email durante la registrazione (necessita di un account di invio email)
+- Per quanto il progetto soddisfa i requisiti GDPR per sicurezza e protezione dei dati il progetto necessita di un messaggio per accettazione/rifiuto cookie
 
-Se qualcuno volesse estenderlo o usarlo come base per qualcosa di più serio, ben venga. Pull request accettate.
+Se qualcuno volesse estenderlo o usarlo come base per qualcosa di più serio, ben venga. Pull request accettate dopo il completamento e la valutazione del PW
 
 ## Licenza
 
