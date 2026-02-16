@@ -272,6 +272,7 @@ export const publishers = {
 
 export const genres = {
   list: () => request("/genres"),
+  create: ({ name }) => request("/genres", { method: "POST", body: { name } }),
 };
 
 /* --------------- PRESTITI -------------- */

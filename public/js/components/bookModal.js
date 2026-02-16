@@ -65,6 +65,12 @@ function setMsg(message, tone = "default") {
   msg.style.color = tone === "success" ? "#1d6f42" : tone === "error" ? "#8a1f1f" : "";
 }
 
+function setInlineMsg(el, text, isError = false) {
+  if (!el) return;
+  el.textContent = text || "";
+  el.style.color = isError ? "#b00020" : "#666";
+}
+
 function clearDatasets() {
   const { btnToggle, btnLoan, btnRemove } = elRefs();
   btnToggle?.removeAttribute("data-isbn");
@@ -85,6 +91,19 @@ async function getGenresOptions() {
   } catch {
     return [];
   }
+}
+
+const genreOptionsHtml = (genres) =>
+  genres.map((g) =>
+    `<option value="${escapeHtml(String(g?.id || ""))}">${escapeHtml(String(g?.name || ""))}</option>`
+  ).join("");
+
+async function refreshGenreSelect(selectEl, selectedId) {
+  if (!selectEl) return;
+  _bookGenresCache = null;
+  const genres = await getGenresOptions();
+  selectEl.innerHTML = genreOptionsHtml(genres);
+  if (selectedId != null) selectEl.value = String(selectedId);
 }
 
 async function getOwnedBooksSet() {
@@ -303,6 +322,13 @@ function renderAdminEditForm(book, genres = []) {
         <label class="form__label">Pagine <input id="editBookPages" class="form__input" type="number" min="1" value="${escapeHtml(String(pages))}" required /></label>
         <label class="form__label">Prezzo copertina <input id="editBookPrice" class="form__input" type="number" min="0" step="0.01" value="${escapeHtml(String(price))}" required /></label>
         <label class="form__label">Genere <select id="editBookGenreId" class="form__input" required>${genreOptions}</select></label>
+        <div class="u-row-wrap">
+          <label class="form__label" style="flex:1;">
+            Nuova categoria
+            <input id="editBookNewGenre" class="form__input" placeholder="Es. Fantasy storico" />
+          </label>
+          <button type="button" class="btn btn--ghost" data-action="create-genre" style="height:42px;">Aggiungi categoria</button>
+        </div>
         <label class="form__label">Editore <input id="editBookPublisher" class="form__input" value="${publisher}" required /></label>
         <label class="form__label">Autori (separati da virgola) <input id="editBookAuthors" class="form__input" value="${authors}" required /></label>
         <div class="form__actions start">
@@ -441,7 +467,7 @@ function bindHandlers() {
   backdrop?.addEventListener("click", closeModal);
   btnClose?.addEventListener("click", closeModal);
 
-  body?.addEventListener("click", (e) => {
+  body?.addEventListener("click", async (e) => {
     const toggleEditBtn = e.target?.closest?.('[data-action="toggle-edit-meta"]');
     if (toggleEditBtn) {
       const wrap = body.querySelector("#bookAdminEditWrap");
@@ -485,6 +511,37 @@ function bindHandlers() {
         missingApiMsg: "Import copertina non disponibile (API)",
         errorMsg: "Errore import copertina",
       });
+      return;
+    }
+
+    const createGenreBtn = e.target?.closest?.('[data-action="create-genre"]');
+    if (createGenreBtn) {
+      const input = body.querySelector("#editBookNewGenre");
+      const select = body.querySelector("#editBookGenreId");
+      const msgEl = body.querySelector("#bookAdminEditMsg");
+
+      const name = String(input?.value || "").trim();
+      if (!name) {
+        setInlineMsg(msgEl, "Inserisci il nome della nuova categoria.", true);
+        return;
+      }
+      if (!_ctx?.api?.genres?.create) {
+        setInlineMsg(msgEl, "API creazione categoria non disponibile.", true);
+        return;
+      }
+
+      try {
+        setInlineMsg(msgEl, "Creo categoria...");
+        const res = await _ctx.api.genres.create({ name });
+        const created = res?.genre;
+        if (!created?.id) throw new Error("Categoria non creata");
+
+        await refreshGenreSelect(select, created.id);
+        if (input) input.value = "";
+        setInlineMsg(msgEl, "Categoria aggiunta.");
+      } catch (err) {
+        setInlineMsg(msgEl, err?.message || "Errore creazione categoria", true);
+      }
       return;
     }
 
@@ -562,30 +619,25 @@ function bindHandlers() {
     const publisher = body.querySelector("#editBookPublisher")?.value?.trim();
     const authorsRaw = body.querySelector("#editBookAuthors")?.value?.trim();
     const msgEl = body.querySelector("#bookAdminEditMsg");
-    const setFormMsg = (txt, isErr = false) => {
-      if (!msgEl) return;
-      msgEl.textContent = txt || "";
-      msgEl.style.color = isErr ? "#b00020" : "#666";
-    };
 
     if (!isbn || !title || !publisher || !authorsRaw || !Number.isFinite(edition_year) || !Number.isFinite(pages) || !Number.isFinite(cover_price) || !Number.isFinite(genre_id)) {
-      setFormMsg("Compila tutti i campi obbligatori.", true);
+      setInlineMsg(msgEl, "Compila tutti i campi obbligatori.", true);
       return;
     }
 
     const authors = authorsRaw.split(",").map((a) => a.trim()).filter(Boolean);
     if (!authors.length) {
-      setFormMsg("Inserisci almeno un autore.", true);
+      setInlineMsg(msgEl, "Inserisci almeno un autore.", true);
       return;
     }
 
     if (!_ctx?.api?.books?.update) {
-      setFormMsg("API update libro non disponibile.", true);
+      setInlineMsg(msgEl, "API update libro non disponibile.", true);
       return;
     }
 
     try {
-      setFormMsg("Salvataggio...");
+      setInlineMsg(msgEl, "Salvataggio...");
       await _ctx.api.books.update({
         isbn,
         title,
@@ -597,10 +649,10 @@ function bindHandlers() {
         publisher,
         authors,
       });
-      setFormMsg("Metadati aggiornati.");
+      setInlineMsg(msgEl, "Metadati aggiornati.");
       await loadAndRender(_lastParams || { isbn });
     } catch (err) {
-      setFormMsg(err?.message || "Errore salvataggio", true);
+      setInlineMsg(msgEl, err?.message || "Errore salvataggio", true);
     }
   });
 
