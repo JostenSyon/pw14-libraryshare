@@ -137,7 +137,11 @@ async function fetchOpenLibraryByIsbn(isbn) {
 async function searchOpenLibrary(query, limit) {
   const safeLimit = Math.max(1, Math.min(Number(limit) || 8, 20));
   const fields = "key,title,author_name,cover_i,first_publish_year,publisher,isbn";
-  const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&fields=${encodeURIComponent(fields)}&limit=${safeLimit * 6}`;
+  const rawQuery = String(query || "").trim();
+  const italianQuery = /\blanguage:\w+/i.test(rawQuery)
+    ? rawQuery
+    : `${rawQuery} language:ita`;
+  const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(italianQuery)}&lang=it&fields=${encodeURIComponent(fields)}&limit=${safeLimit * 6}`;
   const json = await fetchJsonWithTimeout(url, 3500);
   if (!json || typeof json !== "object") return [];
   const docs = Array.isArray(json?.docs) ? json.docs : [];
