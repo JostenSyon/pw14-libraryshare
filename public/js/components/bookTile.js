@@ -14,12 +14,25 @@ function toBadgeClass(tone) {
   return "badge";
 }
 
-function renderCover(coverUrl, title, escapeHtml) {
+function toTileCoverUrl(coverUrl, useThumb) {
   const cover = String(coverUrl || "").trim();
+  if (!cover) return "";
+  if (!useThumb) return cover;
+  if (cover.startsWith("/uploads/covers/")) {
+    const file = cover.split("/").pop() || "";
+    return file ? `/uploads/covers/thumb-${file}` : cover;
+  }
+  return cover.replace(/-M(\.jpg.*)$/i, "-S$1");
+}
+
+function renderCover(coverUrl, title, layout, escapeHtml) {
+  const cover = String(coverUrl || "").trim();
+  const useThumb = layout !== "compact";
+  const tileCover = toTileCoverUrl(cover, useThumb);
   if (!cover) {
     return `<div class="book-tile__cover-placeholder">Nessuna copertina</div>`;
   }
-  return `<img class="book-tile__cover" src="${safeEscape(escapeHtml, cover)}" alt="Copertina ${safeEscape(escapeHtml, title || "")}" />`;
+  return `<img class="book-tile__cover" src="${safeEscape(escapeHtml, tileCover)}" data-full-src="${safeEscape(escapeHtml, cover)}" onerror="if(this.dataset.fullSrc&&this.src!==this.dataset.fullSrc){this.src=this.dataset.fullSrc;}" alt="Copertina ${safeEscape(escapeHtml, title || "")}" />`;
 }
 
 function renderMetaRows(rows, escapeHtml) {
@@ -89,7 +102,7 @@ export function renderBookTile({
     <article class="${tileClass}">
       <div class="book-tile__main">
         <div class="book-tile__media">
-          ${renderCover(coverUrl, title, escapeHtml)}
+          ${renderCover(coverUrl, title, layout, escapeHtml)}
         </div>
 
         <div class="book-tile__body">

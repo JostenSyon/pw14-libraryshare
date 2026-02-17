@@ -1,6 +1,7 @@
 import { pool } from "../config/db.js";
 import fs from "fs";
 import path from "path";
+import sharp from "sharp";
 
 const DEFAULT_GENRE_NAME = "Non categorizzato";
 const DEFAULT_PUBLISHER_NAME = "Sconosciuto";
@@ -15,6 +16,27 @@ function isLikelyIsbn(value) {
   if (raw.length === 13) return /^\d{13}$/.test(raw);
   if (raw.length === 10) return /^\d{9}[\dXx]$/.test(raw);
   return false;
+}
+
+function normalizeText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function buildSearchTokens(q) {
+  const stop = new Set([
+    "il", "lo", "la", "i", "gli", "le", "un", "una", "uno",
+    "di", "del", "della", "dei", "degli", "delle",
+    "e", "ed", "a", "da", "in", "con", "per", "su",
+    "al", "allo", "alla", "ai", "agli", "alle",
+  ]);
+
+  return normalizeText(q)
+    .split(/[^a-z0-9]+/)
+    .map((t) => t.trim())
+    .filter((t) => t.length >= 3 && !stop.has(t));
 }
 
 function pickFirstValidIsbn(values) {
@@ -136,7 +158,9 @@ async function fetchOpenLibraryByIsbn(isbn) {
 
 async function searchOpenLibrary(query, limit) {
   const safeLimit = Math.max(1, Math.min(Number(limit) || 8, 20));
-  const fields = "key,title,author_name,cover_i,first_publish_year,publisher,isbn";
+  // Per non superare il limite richieste di OpenLibrary uso una sola chiamata search.
+  // Poi filtro e ordino i risultati lato server, dando priorità a quelli in italiano.
+  const fields = "key,title,author_name,cover_i,first_publish_year,publisher,isbn,language";
   const rawQuery = String(query || "").trim();
   const italianQuery = /\blanguage:\w+/i.test(rawQuery)
     ? rawQuery
@@ -164,6 +188,10 @@ async function searchOpenLibrary(query, limit) {
       ? `https://covers.openlibrary.org/b/id/${Number(d.cover_i)}-M.jpg`
       : null;
 
+    const langs = Array.isArray(d?.language)
+      ? d.language.map((v) => String(v || "").trim().toLowerCase()).filter(Boolean)
+      : [];
+
     out.push({
       source: "openlibrary",
       isbn,
@@ -172,12 +200,33 @@ async function searchOpenLibrary(query, limit) {
       publisher: publishers[0] || "",
       edition_year: Number.isInteger(d?.first_publish_year) ? d.first_publish_year : null,
       cover_url: coverUrl,
+      language_codes: langs,
+      is_italian: langs.includes("ita"),
     });
-
-    if (out.length >= safeLimit) break;
   }
 
-  return out;
+  const tokens = buildSearchTokens(query);
+  const fullQ = normalizeText(query);
+  const score = (item) => {
+    const hay = normalizeText(`${item?.title || ""} ${item?.authors || ""} ${item?.publisher || ""}`);
+    const tokenHits = tokens.reduce((acc, t) => acc + (hay.includes(t) ? 1 : 0), 0);
+    const fullHit = fullQ && hay.includes(fullQ) ? 1 : 0;
+    const italianBoost = item?.is_italian ? 1 : 0;
+    return (fullHit * 4) + (tokenHits * 2) + italianBoost;
+  };
+
+  const tokenFiltered = tokens.length ? out.filter((item) => {
+    const hay = normalizeText(`${item?.title || ""} ${item?.authors || ""} ${item?.publisher || ""}`);
+    return tokens.some((t) => hay.includes(t));
+  }) : out;
+
+  const italian = tokenFiltered.filter((item) => item?.is_italian);
+  const rankedSource = italian.length ? italian : tokenFiltered;
+
+  return rankedSource
+    .sort((a, b) => score(b) - score(a))
+    .slice(0, safeLimit)
+    .map(({ language_codes, is_italian, ...item }) => item);
 }
 
 async function fetchOpenLibraryWorkDescription(workKey) {
@@ -800,6 +849,7 @@ export async function uploadBookCover(req, res) {
 
   const ext = mime === "image/png" ? "png" : mime === "image/webp" ? "webp" : "jpg";
   const filename = `${cleanIsbn}.${ext}`;
+  const thumbFilename = `thumb-${cleanIsbn}.${ext}`;
 
   try {
     // Controllo che il libro esista.
@@ -816,7 +866,12 @@ export async function uploadBookCover(req, res) {
     fs.mkdirSync(baseDir, { recursive: true });
 
     const filePath = path.join(baseDir, filename);
+    const thumbPath = path.join(baseDir, thumbFilename);
     fs.writeFileSync(filePath, req.file.buffer);
+    await sharp(req.file.buffer)
+      .resize({ width: 120, height: 180, fit: "cover" })
+      .toFormat(ext === "jpg" ? "jpeg" : ext)
+      .toFile(thumbPath);
 
     const cover_url = `/uploads/covers/${filename}`;
 

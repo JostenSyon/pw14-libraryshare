@@ -8,7 +8,8 @@
     "start": "node src/app.js",
     "db:init": "node scripts/run-sql.js db/00_init.sql",
     "db:seed": "node scripts/run-sql.js db/01_seed_example.sql",
-    "db:setup": "npm run db:init && npm run db:seed"
+    "db:setup": "npm run db:init && npm run db:seed",
+    "seed:users:local": "node scripts/seed-users-local.js"
   },
   "keywords": [],
   "author": "",
@@ -20,7 +21,8 @@
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "multer": "^2.0.2",
-    "pg": "^8.17.2"
+    "pg": "^8.17.2",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"

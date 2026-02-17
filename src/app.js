@@ -46,6 +46,12 @@ app.get("/health", async (req, res) => {
   res.json({ ok: r.rows[0].ok });
 });
 
+app.use((err, req, res, next) => {
+  if (err?.code === "LIMIT_FILE_SIZE") {
+    return res.status(413).json({ error: "File troppo grande (max 12MB)" });
+  }
+  return next(err);
+});
 
 
 

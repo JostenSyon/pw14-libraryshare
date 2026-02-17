@@ -587,6 +587,7 @@ function bindHandlers() {
         } catch {
           
         }
+        if (res.status === 413) msg = "File troppo grande (max 12MB)";
         throw new Error(msg);
       }
 
