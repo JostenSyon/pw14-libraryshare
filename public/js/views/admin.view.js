@@ -110,6 +110,67 @@ function renderStatusSummary(statusMap) {
   return `pending: ${m.pending} • accepted: ${m.accepted} • rejected: ${m.rejected} • returned: ${m.returned} • cancelled: ${m.cancelled}`;
 }
 
+function renderLoanStatusBars(statusMap) {
+  // Grafico a barre per gli stati dei prestiti: più immediato che leggere una tabella di numeri, soprattutto quando i dati crescono.
+  const m = formatStatusMap(statusMap);
+  const rows = [
+    { key: "pending", label: "Pending", value: m.pending },
+    { key: "accepted", label: "Accepted", value: m.accepted },
+    { key: "rejected", label: "Rejected", value: m.rejected },
+    { key: "returned", label: "Returned", value: m.returned },
+    { key: "cancelled", label: "Cancelled", value: m.cancelled },
+  ];
+  const max = Math.max(1, ...rows.map((r) => r.value));
+
+  return `
+    <div class="admin-chart-bars">
+      ${rows.map((r) => `
+        <div class="admin-chart-bars__row">
+          <div class="admin-chart-bars__label">${escapeHtml(r.label)}</div>
+          <div class="admin-chart-bars__track">
+            <div class="admin-chart-bars__fill admin-chart-bars__fill--${r.key}" style="width:${Math.max(4, Math.round((r.value / max) * 100))}%"></div>
+          </div>
+          <div class="admin-chart-bars__value">${num(r.value)}</div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderAvailabilityDonut(available, unavailable) {
+  // Grafico ad anello per disponibili e non disponibili: un colpo d'occhio sullo "stato" del catalogo.
+  const a = Math.max(0, num(available));
+  const u = Math.max(0, num(unavailable));
+  const total = Math.max(1, a + u);
+  // Percentuale disponibili sul totale (disponibili + non disponibili).
+  const pct = Math.round((a / total) * 100);
+
+  return `
+    <div class="admin-chart-donut-wrap">
+      <svg viewBox="0 0 120 120" class="admin-chart-donut" aria-hidden="true">
+        <circle cx="60" cy="60" r="48" fill="none" stroke="#f0f2f6" stroke-width="18"></circle>
+        <circle
+          cx="60"
+          cy="60"
+          r="48"
+          fill="none"
+          stroke="#2f9e44"
+          stroke-width="18"
+          stroke-linecap="round"
+          stroke-dasharray="${Math.round((a / total) * 302)} 302"
+          transform="rotate(-90 60 60)"
+        ></circle>
+        <circle cx="60" cy="60" r="30" fill="#fff"></circle>
+        <text x="60" y="64" text-anchor="middle" font-size="16" font-weight="700" fill="#1f2937">${pct}%</text>
+      </svg>
+      <div class="admin-chart-donut__legend">
+        <div><span class="admin-chart-dot admin-chart-dot--ok"></span> Disponibili: <strong>${a}</strong></div>
+        <div><span class="admin-chart-dot admin-chart-dot--no"></span> Non disponibili: <strong>${u}</strong></div>
+      </div>
+    </div>
+  `;
+}
+
 export async function renderAdminPage() {
   try {
     return await loadViewHtml("/views/admin.html");
@@ -125,8 +186,11 @@ export async function mountAdminPage(ctx) {
   const statsEl = document.getElementById("admin-stats");
   const emptyEl = document.getElementById("admin-stats-empty");
   const listsWrap = document.getElementById("admin-stats-lists");
+  const chartsWrap = document.getElementById("admin-stats-charts");
   const topViewedEl = document.getElementById("admin-top-viewed");
   const mostRequestedEl = document.getElementById("admin-most-requested");
+  const chartLoansEl = document.getElementById("admin-chart-loans");
+  const chartAvailabilityEl = document.getElementById("admin-chart-availability");
 
   const mapEl = document.getElementById("admin-map");
   const mapEmptyEl = document.getElementById("admin-map-empty");
@@ -301,6 +365,7 @@ export async function mountAdminPage(ctx) {
     statsEl.innerHTML = card("Caricamento", "...");
     if (emptyEl) emptyEl.hidden = true;
     if (listsWrap) listsWrap.hidden = true;
+    if (chartsWrap) chartsWrap.hidden = true;
 
     try {
       const res = await fetch("/api/admin/stats/overview", { credentials: "include" });
@@ -308,6 +373,7 @@ export async function mountAdminPage(ctx) {
 
       const json = await res.json();
       const ov = json?.overview || {};
+      // Riuso i dati già calcolati per le statistiche admin: nessun endpoint aggiuntivo.
       const byStatus = ov.loan_requests_by_status || {};
       const statusSummary = Object.keys(byStatus).length
         ? Object.entries(byStatus).map(([k, v]) => `${k}: ${num(v)}`).join(" • ")
@@ -338,11 +404,23 @@ export async function mountAdminPage(ctx) {
           : `<div class="muted">Nessun dato.</div>`;
       }
 
+      if (chartLoansEl) {
+        chartLoansEl.innerHTML = renderLoanStatusBars(ov.loan_requests_by_status || {});
+      }
+      if (chartAvailabilityEl) {
+        chartAvailabilityEl.innerHTML = renderAvailabilityDonut(
+          num(ov.user_books_available),
+          num(ov.user_books_unavailable)
+        );
+      }
+
       if (listsWrap) listsWrap.hidden = false;
+      if (chartsWrap) chartsWrap.hidden = false;
     } catch (err) {
       console.warn("Admin stats load failed:", err);
       statsEl.innerHTML = "";
       if (emptyEl) emptyEl.hidden = false;
+      if (chartsWrap) chartsWrap.hidden = true;
     }
   };
 
@@ -394,6 +472,30 @@ export async function mountAdminPage(ctx) {
         },
       });
 
+      const tooltipMarkers = [];
+      const renderUserIds = (ids) => {
+        const clean = Array.isArray(ids)
+          ? ids.map((v) => Number(v)).filter((v) => Number.isInteger(v) && v > 0)
+          : [];
+        if (!clean.length) return "id: n/d";
+        clean.sort((a, b) => a - b);
+        const max = 12;
+        const shown = clean.slice(0, max);
+        const extra = clean.length - shown.length;
+        return extra > 0
+          ? `id: ${shown.join(", ")} +${extra}`
+          : `id: ${shown.join(", ")}`;
+      };
+
+      const syncIdsTooltip = () => {
+        // Gli ID sui marker compaiono solo con zoom ravvicinato: da lontano la mappa resta leggibile senza sovrapposizioni.
+        const shouldShow = map.getZoom() >= 11;
+        for (const marker of tooltipMarkers) {
+          if (shouldShow) marker.openTooltip();
+          else marker.closeTooltip();
+        }
+      };
+
       const bounds = [];
       for (const p of points) {
         const lat = Number(p.lat);
@@ -401,6 +503,7 @@ export async function mountAdminPage(ctx) {
         const booksTotal = num(p.books_total);
         const booksAvailable = num(p.books_available);
         const usersTotal = num(p.users_total);
+        const userIds = Array.isArray(p.user_ids) ? p.user_ids : [];
         if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
 
         bounds.push([lat, lon]);
@@ -408,6 +511,7 @@ export async function mountAdminPage(ctx) {
           books_total: booksTotal,
           users_total: usersTotal,
           books_available: booksAvailable,
+          user_ids: userIds,
           icon: L.divIcon({
             html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;background:#2055d6;color:#fff;border:2px solid #fff;font-size:11px;font-weight:700;">${escapeHtml(String(booksTotal))}</div>`,
             className: "",
@@ -415,18 +519,29 @@ export async function mountAdminPage(ctx) {
           }),
         });
 
+        // Tooltip con lista ID utente (utile per debug ma da rimuovere in produzione).
+        marker.bindTooltip(
+          `<span style="display:inline-block;padding:2px 6px;border-radius:999px;background:#111;color:#fff;font-size:11px;">${escapeHtml(renderUserIds(userIds))}</span>`,
+          { direction: "right", offset: [8, 0], permanent: true, opacity: 0.95, className: "admin-map-id-tooltip" }
+        );
+
         marker.bindPopup(
           `<strong>Area approssimata</strong><br/>` +
           `Utenti: ${usersTotal}<br/>` +
           `Libri: ${booksTotal}<br/>` +
-          `Disponibili: ${booksAvailable}`
+          `Disponibili: ${booksAvailable}<br/>` +
+          `${escapeHtml(renderUserIds(userIds))}`
         );
         cluster.addLayer(marker);
+        tooltipMarkers.push(marker);
       }
       map.addLayer(cluster);
 
       if (bounds.length) map.fitBounds(bounds, { padding: [24, 24] });
       else map.setView([41.9028, 12.4964], 6);
+
+      map.on("zoomend", syncIdsTooltip);
+      syncIdsTooltip();
 
       if (mapMetaEl) {
         mapMetaEl.textContent = `Utenti con posizione: ${usersWithLocation} • Punti mostrati: ${points.length}`;

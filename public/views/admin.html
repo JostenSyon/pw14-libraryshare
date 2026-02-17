@@ -3,6 +3,17 @@
 <!-- Riepilogo statistiche + due classifiche -->
 <section class="section-block">
   <h2 class="section-title">Statistiche</h2>
+  <div id="admin-stats-charts" hidden>
+    <div class="card">
+      <div class="card__title mb-12">Richieste prestito per stato</div>
+      <div id="admin-chart-loans"></div>
+    </div>
+    <div class="card">
+      <div class="card__title mb-12">Disponibilita copie</div>
+      <div id="admin-chart-availability"></div>
+    </div>
+  </div>
+
   <div id="admin-stats" class="u-row-wrap"></div>
   <p id="admin-stats-empty" class="muted mt-10" hidden>
     Nessun dato disponibile per ora.

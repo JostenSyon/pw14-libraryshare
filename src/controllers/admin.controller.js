@@ -112,7 +112,11 @@ export async function getMapDistribution(req, res) {
             AND b.deleted_at IS NULL
             AND ub.is_available = TRUE
         )::int AS books_available,
-        COUNT(DISTINCT u.id)::int AS users_total
+        COUNT(DISTINCT u.id)::int AS users_total,
+        ARRAY_AGG(DISTINCT u.id) FILTER (
+          WHERE ub.deleted_at IS NULL
+            AND b.deleted_at IS NULL
+        ) AS user_ids
       FROM users u
       LEFT JOIN user_books ub
         ON ub.user_id = u.id
