@@ -59,7 +59,7 @@ npm install
 4. Inizializza il database:
 ```bash
 npm run db:init    # crea le tabelle
-npm run db:seed    # popola con dati di esempio
+npm run db:seed    # resetta e popola con dati demo completi
 ```
 
 Oppure tutto insieme:
@@ -79,7 +79,12 @@ Apri il browser su `http://localhost:3000`
 ## Script database
 
 - `db/00_init.sql`: schema completo (tabelle, indici, vincoli, estensioni)
-- `db/01_seed_example.sql`: dati di esempio (admin demo, qualche libro)
+- `db/01_seed_example.sql`: dataset demo completo estratto dal database locale (utenti, catalogo, prestiti, geodati approssimati)
+
+### Nota seed
+
+- `npm run db:seed` esegue un `TRUNCATE ... RESTART IDENTITY` delle tabelle applicative prima di inserire i dati demo.
+- Usa `db:seed` solo su ambienti di sviluppo/test.
 
 ## Note sulla privacy
 
