@@ -390,9 +390,13 @@ body {
 #searchForm .search-col-md { width: 210px; }
 #searchForm .form__actions { margin: 0; }
 
-#admin-stats-lists, #admin-tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+#admin-stats-lists, #admin-stats-charts, #admin-tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+#admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+#admin-stats .admin-stat-card { min-height: 92px; border: 1px solid #eee; border-radius: 10px; padding: 12px; background: #fff; }
+#admin-stats .admin-stat-card__value { margin-top: 6px; font-size: 22px; font-weight: 700; color: #111; line-height: 1.1; }
+#admin-stats-charts + .card { margin-top: 16px; }
 #admin-stats-lists { margin-top: 16px; }
-#admin-stats-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+#admin-stats-charts { margin-top: 16px; }
 #admin-map { height: 360px; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
 #admin-user-search-row { display: grid; grid-template-columns: 1fr 180px; gap: 8px; }
 #admin-user-edit-username { padding: 0; border: 0; background: transparent; color: #666; font-size: 12px; text-decoration: underline; cursor: pointer; }

@@ -14,10 +14,12 @@
     </div>
   </div>
 
-  <div id="admin-stats" class="u-row-wrap"></div>
-  <p id="admin-stats-empty" class="muted mt-10" hidden>
-    Nessun dato disponibile per ora.
-  </p>
+  <div class="card">
+    <div id="admin-stats"></div>
+    <p id="admin-stats-empty" class="muted mt-10" hidden>
+      Nessun dato disponibile per ora.
+    </p>
+  </div>
 
   <div id="admin-stats-lists" hidden>
     <div class="card">
@@ -47,19 +49,21 @@
 <!-- Manutenzione metadati catalogo -->
 <section class="section-block">
   <h2 class="section-title">Manutenzione metadati</h2>
-  <div class="u-row-wrap">
-    <label class="card__meta u-m-0">Filtro</label>
-    <select id="admin-maintenance-type" class="form__input">
-      <option value="" selected>Seleziona filtro...</option>
-      <option value="missing_description">Senza descrizione</option>
-      <option value="uncategorized">Da classificare</option>
-      <option value="missing_cover">Senza copertina</option>
-      <option value="fallback_pages">Pagine da verificare</option>
-    </select>
-    <button id="admin-maintenance-refresh" type="button" class="btn btn--ghost">Aggiorna</button>
+  <div class="card">
+    <div class="u-row-wrap">
+      <label class="card__meta u-m-0">Filtro</label>
+      <select id="admin-maintenance-type" class="form__input">
+        <option value="" selected>Seleziona filtro...</option>
+        <option value="missing_description">Senza descrizione</option>
+        <option value="uncategorized">Da classificare</option>
+        <option value="missing_cover">Senza copertina</option>
+        <option value="fallback_pages">Pagine da verificare</option>
+      </select>
+      <button id="admin-maintenance-refresh" type="button" class="btn btn--ghost">Aggiorna</button>
+    </div>
+    <div id="admin-maintenance-status" class="card__meta mt-6"></div>
+    <div id="admin-maintenance-list" class="stack-col-10 mt-10"></div>
   </div>
-  <div id="admin-maintenance-status" class="card__meta mt-6"></div>
-  <div id="admin-maintenance-list" class="stack-col-10 mt-10"></div>
 </section>
 
 <!-- Strumenti operativi.

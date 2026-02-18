@@ -118,6 +118,9 @@ CREATE INDEX IF NOT EXISTS idx_books_active_title_trgm
   ON books USING GIN (title gin_trgm_ops)
   WHERE deleted_at IS NULL;
 
+CREATE INDEX IF NOT EXISTS idx_authors_name_trgm
+  ON authors USING GIN (name gin_trgm_ops);
+
 CREATE INDEX IF NOT EXISTS idx_books_active_view_count
   ON books (view_count DESC, title)
   WHERE deleted_at IS NULL;

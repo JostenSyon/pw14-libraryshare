@@ -238,21 +238,11 @@ export async function mountAdminPage(ctx) {
   };
 
   const card = (title, value, sub) => `
-    <div style="min-width:180px; border:1px solid #eee; border-radius:10px; padding:12px;">
-      <div style="font-size:12px; color:#666;">${title}</div>
-      <div style="margin-top:6px; font-size:22px; font-weight:700;">${value}</div>
-      ${sub ? `<div style="margin-top:6px; color:#666; font-size:12px;">${sub}</div>` : ""}
-    </div>
+    <div class="admin-stat-card"><div class="card__meta u-m-0">${title}</div><div class="admin-stat-card__value">${value}</div>${sub ? `<div class="card__meta">${sub}</div>` : ""}</div>
   `;
 
   const row = (label, value, sub) => `
-    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px; border:1px solid #eee; border-radius:10px; padding:10px;">
-      <div style="min-width:0;">
-        <div style="font-weight:700; line-height:1.2;">${label}</div>
-        ${sub ? `<div style="margin-top:4px; color:#666; font-size:12px;">${sub}</div>` : ""}
-      </div>
-      <div style="font-weight:800;">${value}</div>
-    </div>
+    <div class="card"><div class="card__row"><div><div class="card__title">${label}</div>${sub ? `<div class="card__meta">${sub}</div>` : ""}</div><div class="card__title">${value}</div></div></div>
   `;
 
   const byUsernameThenId = (a, b) => {
