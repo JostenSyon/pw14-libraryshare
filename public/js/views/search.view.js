@@ -117,6 +117,7 @@ export function mountSearchPage(ctx) {
     const params = buildQuery();
     const baseList = [];
 
+    // Prendo suggerimenti da fonti diverse: se una fonte non è raggiungibile, continuo con le altre.
     const [bookRes, authorRes, publisherRes] = await Promise.allSettled([
       api.books?.search ? api.books.search({ ...params, limit: 5, offset: 0, availability: "all" }) : Promise.resolve({ results: [] }),
       api.authors?.search ? api.authors.search(q) : Promise.resolve([]),
@@ -173,7 +174,8 @@ export function mountSearchPage(ctx) {
     }
 
     if (btnPrev) btnPrev.disabled = off <= 0;
-    if (btnNext) btnNext.disabled = totalShown < lim; // se < limit, probabilmente ultima pagina
+    // Non avendo il totale dal backend, uso una regola semplice: se ricevo meno di "limit" sono in coda.
+    if (btnNext) btnNext.disabled = totalShown < lim;
   };
 
   const renderResults = (resp) => {
@@ -258,7 +260,7 @@ export function mountSearchPage(ctx) {
       lastResponse = null;
       renderPager();
 
-      // Manteniamo badge "non impostata" salvo evidenze diverse
+      // Teniamo il badge su "non impostata" finché non abbiamo un riscontro diverso.
       setLoc("no", "Imposta la posizione per effettuare la ricerca.");
     }
   };
@@ -315,7 +317,7 @@ export function mountSearchPage(ctx) {
         setLoc("no", "Salvo posizione…");
 
         try {
-          // Supporta vari nomi metodo lato API
+          // Mantengo più nomi per compatibilità con versioni API diverse.
           if (api.users?.setLocation) {
             await api.users.setLocation({ lat, lon, accuracy });
           } else if (api.users?.updateLocation) {

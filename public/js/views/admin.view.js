@@ -6,6 +6,7 @@ function ensureLeafletAssets() {
   if (window.L) return Promise.resolve(window.L);
   if (leafletAssetsPromise) return leafletAssetsPromise;
 
+  // Caricamento una sola volta: le mount successive riusano la stessa Promise.
   leafletAssetsPromise = new Promise((resolve, reject) => {
     const cssId = "leaflet-css";
     if (!document.getElementById(cssId)) {
@@ -451,6 +452,7 @@ export async function mountAdminPage(ctx) {
         spiderfyOnMaxZoom: true,
         maxClusterRadius: 60,
         iconCreateFunction: (cl) => {
+          // Nel cluster mostro il totale libri aggregato, non solo il numero marker.
           const childs = cl.getAllChildMarkers();
           let sumBooks = 0;
           for (const m of childs) sumBooks += num(m.options?.books_total);
